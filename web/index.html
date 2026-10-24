@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FoxPro IDE Web</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="stylesheet" href="vendor/monaco/vs/editor/editor.main.css" />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header class="menubar" id="menubar">
+        <div class="brand" title="FoxPro IDE Web">
+          <span class="brand-mark">FP</span>
+          <span class="brand-name">FoxPro <b>IDE</b> Web</span>
+        </div>
+
+        <nav class="menus" aria-label="Menu principal">
+          <div class="menu">
+            <button class="menu-btn" data-menu="file" type="button">Arquivo</button>
+            <div class="menu-panel" id="menu-file" role="menu">
+              <button class="menu-item" data-action="import" type="button">
+                <span>Importar Projeto (.pjx)…</span><kbd>Ctrl+O</kbd>
+              </button>
+              <button class="menu-item" data-action="save" type="button">
+                <span>Salvar</span><kbd>Ctrl+S</kbd>
+              </button>
+              <div class="menu-sep"></div>
+              <button class="menu-item" data-action="export-unified" type="button">
+                <span>Unificar p/ LLM — arquivo único</span><kbd>Ctrl+Shift+E</kbd>
+              </button>
+              <button class="menu-item" data-action="export-partitioned" type="button">
+                <span>Unificar p/ LLM — particionado (.txt)</span>
+              </button>
+              <button class="menu-item" data-action="export-zip" type="button">
+                <span>Unificar p/ LLM — particionado (.zip)</span>
+              </button>
+              <div class="menu-sep"></div>
+              <button class="menu-item" data-action="compile" type="button">
+                <span>Compilar Modificados</span><kbd>Ctrl+Shift+B</kbd>
+              </button>
+            </div>
+          </div>
+
+          <div class="menu">
+            <button class="menu-btn" data-menu="view" type="button">Exibir</button>
+            <div class="menu-panel" id="menu-view" role="menu">
+              <button class="menu-item" data-action="toggle-sidebar" type="button">
+                <span>Barra lateral</span>
+              </button>
+              <button class="menu-item" data-action="close-all" type="button">
+                <span>Fechar todas as abas</span>
+              </button>
+              <div class="menu-sep"></div>
+              <button class="menu-item" data-action="open-logs" type="button">
+                <span>Abrir log do servidor</span>
+              </button>
+              <button class="menu-item" data-action="refresh-status" type="button">
+                <span>Verificar conexão</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="menu">
+            <button class="menu-btn" data-menu="help" type="button">Ajuda</button>
+            <div class="menu-panel" id="menu-help" role="menu">
+              <button class="menu-item" data-action="about" type="button">
+                <span>Sobre o FoxPro IDE Web</span>
+              </button>
+              <button class="menu-item" data-action="export-help" type="button">
+                <span>Formato de exportação p/ LLM</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <div class="menubar-spacer"></div>
+
+        <button class="server-pill" id="serverPill" type="button" title="Status do servidor local">
+          <span class="dot" id="serverDot"></span>
+          <span id="serverLabel">Verificando…</span>
+        </button>
+      </header>
+
+      <div class="workbench">
+        <aside class="activitybar" aria-label="Barra de atividades">
+          <button class="activity-btn active" id="activityExplorer" data-action="toggle-sidebar" type="button"
+            title="Explorador" aria-label="Explorador" aria-pressed="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
+              <path d="M13 3v6h6" />
+              <path d="M19 9v6h4v6h-9v-6h5" />
+            </svg>
+          </button>
+          <button class="activity-btn" data-action="compile" type="button"
+            title="Compilar modificados (Ctrl+Shift+B)" aria-label="Compilar modificados">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z" />
+            </svg>
+          </button>
+          <button class="activity-btn" data-action="open-logs" type="button"
+            title="Log do servidor" aria-label="Log do servidor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <path d="m7 9 3 3-3 3M13 15h4" />
+            </svg>
+          </button>
+          <div class="activity-spacer"></div>
+          <button class="activity-btn" id="settingsBtn" type="button"
+            title="Configurações do servidor" aria-label="Configurações do servidor">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" />
+              <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 8.96 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z" />
+            </svg>
+          </button>
+        </aside>
+
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-head">
+            <span class="sidebar-title">Explorador</span>
+            <div class="sidebar-head-actions">
+              <button class="icon-btn" id="importBtn" type="button"
+                title="Importar projeto (.pjx)" aria-label="Importar projeto">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z" />
+                  <path d="M12 11v6M9 14h6" />
+                </svg>
+              </button>
+              <button class="icon-btn" id="compileSideBtn" type="button"
+                title="Compilar modificados (Ctrl+Shift+B)" aria-label="Compilar modificados">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M13 2 4.5 13H11l-1 9 8.5-11H12l1-9Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="project-card" id="projectCard">
+            <div class="project-card-head">
+              <div class="project-icon" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 3.8A1.8 1.8 0 0 1 3.3 2h2.9l1.5 1.6h5A1.8 1.8 0 0 1 14.5 5.4v6.8a1.8 1.8 0 0 1-1.8 1.8H3.3a1.8 1.8 0 0 1-1.8-1.8V3.8Z"/></svg>
+              </div>
+              <div class="project-meta">
+                <div class="project-name" id="projectName">Nenhum projeto</div>
+                <div class="project-path" id="projectPath">Importe um .pjx para começar</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tree-search">
+            <input id="treeFilter" type="search" placeholder="Filtrar arquivos…" autocomplete="off" spellcheck="false" />
+          </div>
+
+          <div class="tree" id="tree" role="tree">
+            <div class="tree-empty" id="treeEmpty">
+              <div class="tree-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z" />
+                </svg>
+              </div>
+              <p>Os arquivos do projeto aparecem aqui depois da importação.</p>
+            </div>
+          </div>
+
+          <div class="sidebar-footer" id="sidebarFooter">
+            <span id="fileCount">0 arquivos</span>
+            <span id="modifiedCount">0 modificados</span>
+          </div>
+        </aside>
+
+        <main class="editor-area">
+          <div class="tabs" id="tabs" role="tablist"></div>
+          <div class="breadcrumb" id="breadcrumb" hidden></div>
+          <div class="editor-viewbar" id="editorViewbar" hidden>
+            <div class="editor-viewbar-left">
+              <span class="editor-viewbar-label">Visualização do formulário</span>
+              <span class="experimental-badge" title="Recurso experimental">Experimental</span>
+            </div>
+            <div class="view-switch" role="tablist" aria-label="Modo de visualização do formulário">
+              <button class="view-switch-btn is-active" id="viewCodeBtn" type="button"
+                role="tab" aria-selected="true" aria-controls="editor">Código</button>
+              <button class="view-switch-btn" id="viewPreviewBtn" type="button"
+                role="tab" aria-selected="false" aria-controls="formPreview">Preview</button>
+            </div>
+          </div>
+          <div class="editor-stack">
+            <div id="editor" class="editor" hidden></div>
+
+            <section class="form-preview" id="formPreview" aria-label="Preview experimental do formulário" hidden>
+              <div class="form-preview-toolbar">
+                <div class="form-preview-heading">
+                  <span class="experimental-badge">Experimental</span>
+                  <span class="form-preview-meta" id="formPreviewMeta">—</span>
+                </div>
+                <div class="form-preview-actions">
+                  <button class="icon-btn" id="formZoomOut" type="button"
+                    title="Diminuir zoom" aria-label="Diminuir zoom">−</button>
+                  <span class="form-zoom-label" id="formZoomLabel">100%</span>
+                  <button class="icon-btn" id="formZoomIn" type="button"
+                    title="Aumentar zoom" aria-label="Aumentar zoom">+</button>
+                  <button class="btn tiny ghost" id="formZoomFit" type="button">Ajustar</button>
+                  <button class="btn tiny ghost" id="formRefresh" type="button">Atualizar</button>
+                </div>
+              </div>
+              <div class="form-preview-note">
+                Renderização aproximada e somente leitura do <code>.sc2</code>. O código VFP não é executado.
+              </div>
+              <div class="form-preview-stage" id="formPreviewStage"></div>
+              <div class="form-preview-status" id="formPreviewStatus"></div>
+            </section>
+
+            <section class="welcome" id="welcome">
+              <div class="welcome-inner">
+                <div class="welcome-logo">FP</div>
+                <h1>FoxPro <span>IDE</span> Web</h1>
+                <p class="welcome-sub">
+                  Visualize, edite e recompile projetos Visual FoxPro direto no navegador.
+                  O FoxBin2Prg embutido converte binários em texto editável e devolve o ZIP compilado.
+                </p>
+
+                <div class="welcome-actions">
+                  <button class="btn primary" id="welcomeImportBtn" type="button">
+                    Importar projeto (.pjx)
+                  </button>
+                  <button class="btn ghost" id="welcomeSettingsBtn" type="button">
+                    Configurar servidor
+                  </button>
+                </div>
+
+                <div class="welcome-status" id="welcomeStatus"></div>
+
+                <div class="recent" id="recentProjects" hidden>
+                  <h2>Projetos recentes</h2>
+                  <div class="recent-list" id="recentList"></div>
+                </div>
+
+                <div class="welcome-hint">
+                  <span>Servidor local</span>
+                  <span class="welcome-hint-sep">·</span>
+                  <span>FoxBin2Prg</span>
+                  <span class="welcome-hint-sep">·</span>
+                  <span>Exportação para LLM</span>
+                </div>
+              </div>
+            </section>
+
+            <div class="offline-banner" id="offlineBanner" hidden>
+              Servidor offline — as alterações ficam salvas localmente até a conexão voltar.
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <footer class="statusbar">
+        <div class="status-left">
+          <button class="status-item status-server" id="statusServerBtn" type="button">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusServer">Offline</span>
+          </button>
+          <span class="status-item" id="statusProject">Sem projeto</span>
+          <span class="status-item" id="statusModified">0 modificados</span>
+        </div>
+        <div class="status-right">
+          <span class="status-item" id="statusMain" hidden></span>
+          <span class="status-item" id="statusPosition" hidden>Ln 1, Col 1</span>
+          <span class="status-item" id="statusEncoding">Cp1252</span>
+          <span class="status-item" id="statusVfp" title="Runtime usado pelo FoxBin2Prg">VFP —</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Modal: importar projeto -->
+    <div class="modal" id="importModal" hidden>
+      <div class="modal-backdrop" data-close="importModal"></div>
+      <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="importTitle">Importar projeto Visual FoxPro</h2>
+            <p class="muted">
+              O projeto é copiado para um workspace isolado e os binários são desconvertidos
+              com FoxBin2Prg. A pasta original não é alterada.
+            </p>
+          </div>
+          <button class="modal-close" type="button" data-close="importModal" aria-label="Fechar">×</button>
+        </header>
+
+        <div class="modal-body">
+          <label class="field">
+            <span>Caminho do arquivo .pjx</span>
+            <div class="field-row">
+              <input id="projectPathInput" type="text" spellcheck="false" autocomplete="off"
+                placeholder="C:\Projetos\MeuApp\MeuApp.pjx" />
+              <button class="btn ghost no-shrink" id="browseBtn" type="button">Procurar…</button>
+            </div>
+          </label>
+
+          <div class="browser" id="browser" hidden>
+            <div class="browser-head">
+              <button class="btn tiny ghost" id="browserUp" type="button">↑ Acima</button>
+              <span class="browser-path" id="browserPath">—</span>
+            </div>
+            <div class="browser-list" id="browserList"></div>
+          </div>
+
+          <div class="recent import-recent" id="importRecent" hidden>
+            <h3>Workspaces recentes</h3>
+            <div class="recent-list" id="importRecentList"></div>
+          </div>
+
+          <div class="modal-feedback" id="importFeedback"></div>
+        </div>
+
+        <footer class="modal-foot">
+          <button class="btn ghost" type="button" data-close="importModal">Cancelar</button>
+          <button class="btn primary" id="doImportBtn" type="button">Importar e descompilar</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal: configurações -->
+    <div class="modal" id="settingsModal" hidden>
+      <div class="modal-backdrop" data-close="settingsModal"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="settingsTitle">Conexão com o servidor local</h2>
+            <p class="muted">Endereço do FoxPro Local Bridge Service.</p>
+          </div>
+          <button class="modal-close" type="button" data-close="settingsModal" aria-label="Fechar">×</button>
+        </header>
+
+        <div class="modal-body">
+          <label class="field">
+            <span>Endereço do servidor</span>
+            <input id="serverUrlInput" type="text" spellcheck="false" autocomplete="off"
+              placeholder="http://127.0.0.1:8080" />
+          </label>
+
+          <div class="row wrap">
+            <button class="btn ghost small" id="testServerBtn" type="button">Testar conexão</button>
+            <span class="muted inline" id="testServerResult">—</span>
+          </div>
+
+          <div class="server-detail" id="serverDetail"></div>
+
+          <div class="modal-feedback" id="settingsFeedback"></div>
+        </div>
+
+        <footer class="modal-foot">
+          <button class="btn ghost" type="button" data-close="settingsModal">Cancelar</button>
+          <button class="btn primary" id="saveSettingsBtn" type="button">Salvar</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal: resultado da compilação -->
+    <div class="modal" id="compileModal" hidden>
+      <div class="modal-backdrop" data-close="compileModal"></div>
+      <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="compileTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="compileTitle">Resultado da compilação</h2>
+            <p class="muted" id="compileSummary">—</p>
+          </div>
+          <button class="modal-close" type="button" data-close="compileModal" aria-label="Fechar">×</button>
+        </header>
+        <div class="modal-body">
+          <div class="compile-list" id="compileList"></div>
+          <div class="modal-feedback" id="compileWarnings"></div>
+        </div>
+        <footer class="modal-foot">
+          <a class="btn primary" id="compileDownloadBtn" href="#" download>Baixar ZIP</a>
+          <button class="btn ghost" type="button" data-close="compileModal">Concluir</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal: log do servidor -->
+    <div class="modal" id="logsModal" hidden>
+      <div class="modal-backdrop" data-close="logsModal"></div>
+      <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="logsTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="logsTitle">Log do servidor</h2>
+            <p class="muted" id="logsFile">—</p>
+          </div>
+          <button class="modal-close" type="button" data-close="logsModal" aria-label="Fechar">×</button>
+        </header>
+        <div class="modal-body">
+          <pre class="code-block" id="logsContent">(sem linhas)</pre>
+        </div>
+        <footer class="modal-foot">
+          <button class="btn ghost" id="refreshLogsBtn" type="button">Atualizar</button>
+          <button class="btn primary" type="button" data-close="logsModal">Fechar</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal: sobre / ajuda -->
+    <div class="modal" id="aboutModal" hidden>
+      <div class="modal-backdrop" data-close="aboutModal"></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="aboutTitle">FoxPro IDE Web</h2>
+            <p class="muted">Editor web + bridge local com FoxBin2Prg embutido.</p>
+          </div>
+          <button class="modal-close" type="button" data-close="aboutModal" aria-label="Fechar">×</button>
+        </header>
+        <div class="modal-body" id="aboutBody"></div>
+        <footer class="modal-foot">
+          <button class="btn primary" type="button" data-close="aboutModal">Fechar</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Modal: ajuda do formato LLM -->
+    <div class="modal" id="exportHelpModal" hidden>
+      <div class="modal-backdrop" data-close="exportHelpModal"></div>
+      <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="exportHelpTitle">
+        <header class="modal-head">
+          <div>
+            <h2 id="exportHelpTitle">Formato de exportação para LLM</h2>
+            <p class="muted">Delimitadores estáveis para colar o projeto em um prompt.</p>
+          </div>
+          <button class="modal-close" type="button" data-close="exportHelpModal" aria-label="Fechar">×</button>
+        </header>
+        <div class="modal-body">
+          <pre class="code-block" id="exportHelpCode"></pre>
+        </div>
+        <footer class="modal-foot">
+          <button class="btn primary" type="button" data-close="exportHelpModal">Fechar</button>
+        </footer>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay" hidden>
+      <div class="overlay-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2 id="overlayTitle">Processando…</h2>
+        <p id="overlayText">Isso pode levar alguns segundos.</p>
+      </div>
+    </div>
+
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+
+    <script src="js/vfp-language.js"></script>
+    <script src="vendor/monaco/vs/loader.js"></script>
+    <script>
+      window.__monacoPromise = new Promise(function (resolve, reject) {
+        require.config({ paths: { vs: 'vendor/monaco/vs' } });
+        require(['vs/editor/editor.main'], function () {
+          resolve(window.monaco);
+        }, reject);
+      });
+    </script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

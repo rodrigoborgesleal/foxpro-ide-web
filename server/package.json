@@ -1,0 +1,79 @@
+{
+  "name": "foxpro-ide-web-bridge",
+  "version": "1.0.4",
+  "private": true,
+  "description": "FoxPro IDE Web - Local Bridge Service com FoxBin2Prg embutido e ícone na bandeja do Windows",
+  "main": "systray/main.js",
+  "author": "FoxPro IDE Web",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "tray": "electron .",
+    "server": "node server.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win portable",
+    "dist:installer": "electron-builder --win nsis"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "br.com.foxproideweb.bridge",
+    "productName": "FoxPro IDE Web",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "systray/assets"
+    },
+    "files": [
+      "systray/**/*",
+      "server.js",
+      "core.js",
+      "config.js",
+      "log.js",
+      "zip.js",
+      "vfp/**/*",
+      "vendor/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "systray/assets",
+        "to": "assets",
+        "filter": [
+          "icon.ico",
+          "icon.png"
+        ]
+      },
+      {
+        "from": "../web",
+        "to": "web"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "systray/assets/icon.ico",
+      "artifactName": "FoxProIDEWeb-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "FoxProIDEWeb-${version}-portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "FoxProIDEWeb-${version}-setup.${ext}"
+    }
+  }
+}

@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FoxPro IDE Web — Configurações</title>
+    <link rel="stylesheet" href="settings.css" />
+  </head>
+  <body>
+    <header class="titlebar">
+      <div class="titlebar-left">
+        <img class="titlebar-icon" src="assets/icon.png" alt="" />
+        <span class="titlebar-title">FoxPro IDE Web</span>
+        <span class="titlebar-sep">/</span>
+        <span class="titlebar-subtitle">Configurações</span>
+      </div>
+      <span id="version" class="version">v0.0.0</span>
+    </header>
+
+    <div class="layout">
+      <aside class="nav" aria-label="Seções de configuração">
+        <div class="nav-heading">Configurações</div>
+
+        <a class="nav-item active" href="#section-server" data-section="section-server">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="7" rx="2" />
+            <rect x="3" y="13" width="18" height="7" rx="2" />
+            <path d="M7 7.5h.01M7 16.5h.01" />
+          </svg>
+          <span>Servidor local</span>
+        </a>
+
+        <a class="nav-item" href="#section-vfp" data-section="section-vfp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14" />
+          </svg>
+          <span>Visual FoxPro 9</span>
+        </a>
+
+        <a class="nav-item" href="#section-advanced" data-section="section-advanced">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 7h7M15 7h5M4 12h3M11 12h9M4 17h9M17 17h3" />
+            <circle cx="13" cy="7" r="2" />
+            <circle cx="9" cy="12" r="2" />
+            <circle cx="15" cy="17" r="2" />
+          </svg>
+          <span>Avançado e dados</span>
+        </a>
+
+        <a class="nav-item" href="#section-log" data-section="section-log">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="m7 9 3 3-3 3M13 15h4" />
+          </svg>
+          <span>Log do servidor</span>
+        </a>
+
+        <div class="nav-spacer"></div>
+        <p class="nav-footnote">
+          O bridge escuta apenas em <code>127.0.0.1</code> e mantém cada projeto em um workspace isolado.
+        </p>
+      </aside>
+
+      <main class="content">
+        <section class="section" id="section-server">
+          <div class="section-heading">
+            <div>
+              <h2>Servidor local</h2>
+              <p>
+                A IDE web usa <code id="serverUrl">http://127.0.0.1:8080</code>
+              </p>
+            </div>
+            <span id="serverBadge" class="badge off">parado</span>
+          </div>
+
+          <div class="group">
+            <div class="setting-row">
+              <div class="setting-text">
+                <label for="port">Porta do servidor</label>
+                <p>Intervalo permitido: 1024–65535. A alteração reinicia o bridge.</p>
+              </div>
+              <div class="setting-control">
+                <input id="port" type="number" min="1024" max="65535" step="1" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-text">
+                <label for="serverHost">Endereço</label>
+                <p>O servidor não é exposto na rede local.</p>
+              </div>
+              <div class="setting-control">
+                <input id="serverHost" value="127.0.0.1" type="text" readonly tabindex="-1" />
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-text">
+                <label>Ações do servidor</label>
+                <p>Inicie, pare ou abra a IDE no navegador padrão.</p>
+              </div>
+              <div class="setting-control actions">
+                <button id="openIdeBtn" class="btn primary" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 4h6v6M20 4l-9 9" />
+                    <path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5" />
+                  </svg>
+                  Abrir IDE
+                </button>
+                <button id="startBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.5v13a1 1 0 0 0 1.53.85l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5Z" />
+                  </svg>
+                  Iniciar
+                </button>
+                <button id="stopBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <rect x="7" y="7" width="10" height="10" rx="1.5" />
+                  </svg>
+                  Parar
+                </button>
+                <button id="openLogsBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 6h16M4 12h10M4 18h13" />
+                  </svg>
+                  Abrir logs
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p id="serverError" class="error" hidden></p>
+
+          <div class="group checks">
+            <label class="check">
+              <input id="autoStart" type="checkbox" />
+              <span class="check-text">
+                <span class="check-title">Iniciar o servidor automaticamente com o aplicativo</span>
+                <span class="check-desc">Sobe o bridge assim que o FoxPro IDE Web iniciar.</span>
+              </span>
+            </label>
+
+            <label class="check">
+              <input id="launchAtLogin" type="checkbox" />
+              <span class="check-text">
+                <span class="check-title">Iniciar o FoxPro IDE Web com o Windows</span>
+                <span class="check-desc">Registra o aplicativo na inicialização do sistema.</span>
+              </span>
+            </label>
+
+            <label class="check">
+              <input id="openIdeOnStart" type="checkbox" />
+              <span class="check-text">
+                <span class="check-title">Abrir a IDE no navegador ao iniciar</span>
+                <span class="check-desc">Abre a interface web quando o servidor entrar em execução.</span>
+              </span>
+            </label>
+          </div>
+        </section>
+
+        <section class="section" id="section-vfp">
+          <div class="section-heading">
+            <div>
+              <h2>Visual FoxPro 9</h2>
+              <p>
+                O FoxBin2Prg é executado pelo <code>vfp9.exe</code> instalado na máquina. Se o campo
+                ficar em branco, o aplicativo procura nas instalações padrão.
+              </p>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="setting-row stacked">
+              <div class="setting-text">
+                <label for="vfpPath">Executável do VFP</label>
+                <p>Caminho completo para o <code>vfp9.exe</code>.</p>
+              </div>
+              <div class="setting-control wide">
+                <div class="input-row">
+                  <input
+                    id="vfpPath"
+                    type="text"
+                    spellcheck="false"
+                    autocomplete="off"
+                    placeholder="C:\Program Files (x86)\Microsoft Visual FoxPro 9\vfp9.exe"
+                  />
+                  <button id="pickVfpBtn" class="btn no-shrink" type="button">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z" />
+                    </svg>
+                    Procurar…
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-text">
+                <label>Detecção e teste</label>
+                <p id="vfpStatus" class="status-line">—</p>
+              </div>
+              <div class="setting-control actions">
+                <button id="detectVfpBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="6.5" />
+                    <path d="m16 16 4 4" />
+                  </svg>
+                  Detectar
+                </button>
+                <button id="testVfpBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m5 12 4.5 4.5L19 7" />
+                  </svg>
+                  Testar
+                </button>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-text">
+                <label for="timeoutSec">Tempo limite das conversões</label>
+                <p>Entre 10 e 1800 segundos por operação.</p>
+              </div>
+              <div class="setting-control">
+                <div class="input-suffix">
+                  <input id="timeoutSec" type="number" min="10" max="1800" step="10" />
+                  <span>segundos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="section-advanced">
+          <div class="section-heading">
+            <div>
+              <h2>Avançado e dados locais</h2>
+              <p>
+                <span id="workspaceCount">0</span> workspace(s) em
+                <code id="workspacesPath">—</code>
+              </p>
+            </div>
+          </div>
+
+          <div class="group checks">
+            <label class="check">
+              <input id="keepJobs" type="checkbox" />
+              <span class="check-text">
+                <span class="check-title">Manter pastas temporárias de compilação</span>
+                <span class="check-desc">Guarda os arquivos intermediários para diagnóstico.</span>
+              </span>
+            </label>
+
+            <label class="check">
+              <input id="debug" type="checkbox" />
+              <span class="check-text">
+                <span class="check-title">Log detalhado</span>
+                <span class="check-desc">Inclui stdout/stderr do VFP no log do servidor.</span>
+              </span>
+            </label>
+          </div>
+
+          <div class="group">
+            <div class="setting-row">
+              <div class="setting-text">
+                <label>Pastas e arquivos</label>
+                <p>Abra os diretórios usados pelo bridge no Explorer.</p>
+              </div>
+              <div class="setting-control actions">
+                <button id="openWorkspacesBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z" />
+                  </svg>
+                  Workspaces
+                </button>
+                <button id="openDataBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2h7.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-10Z" />
+                  </svg>
+                  Pasta de dados
+                </button>
+                <button id="openConfigBtn" class="btn" type="button">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" />
+                    <path d="M14 3v5h5" />
+                    <path d="M9 13h6M9 17h6" />
+                  </svg>
+                  config.json
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="notice">
+            A pasta original do projeto nunca é alterada: a importação copia os membros para um
+            workspace isolado e a compilação devolve um ZIP para você copiar de volta.
+          </p>
+        </section>
+
+        <section class="section" id="section-log">
+          <div class="section-heading">
+            <div>
+              <h2>Log do servidor</h2>
+              <p id="logPath">—</p>
+            </div>
+            <button id="refreshLogBtn" class="btn" type="button">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 11a8 8 0 1 0-2.34 5.66" />
+                <path d="M20 4v7h-7" />
+              </svg>
+              Atualizar
+            </button>
+          </div>
+          <pre id="log" class="log">(sem linhas)</pre>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      <span id="feedback" class="feedback" role="status" aria-live="polite"></span>
+      <button id="saveBtn" class="btn primary" type="button">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
+          <path d="M17 21v-8H7v8M7 3v5h8" />
+        </svg>
+        Salvar alterações
+      </button>
+    </footer>
+
+    <script src="settings.js"></script>
+  </body>
+</html>

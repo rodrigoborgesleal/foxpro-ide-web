@@ -1,0 +1,19 @@
+{
+  "name": "foxpro-ide-web",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Web IDE and local bridge for Visual FoxPro projects, powered by FoxBin2Prg and Monaco.",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "tray": "npm --prefix server start",
+    "install:server": "npm --prefix server install",
+    "pack": "npm --prefix server run pack",
+    "dist": "npm --prefix server run dist",
+    "dist:installer": "npm --prefix server run dist:installer"
+  },
+  "dependencies": {
+    "monaco-editor": "^0.57.0"
+  }
+}
